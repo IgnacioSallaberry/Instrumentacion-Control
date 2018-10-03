@@ -51,13 +51,12 @@ def playrec_tone(frecuencia, duracion, amplitud=0.1, fs=192000):
     return tiempo, data, grabacion
 
 
-
-def secuencia(frecuencia, duracion, amplitud=0.1, fs=192000):
+def secuencia(frecuencia, duracion, amplitud=0.06, fs=192000):
     '''
     Extraigo secuencia de datos = 10 picos a partir del 1er segundo
     
     '''    
-    tiempo, data, grabacion = playrec_tone(frecuencia, duracion, amplitud=0.1, fs=192000)
+    tiempo, data, grabacion = playrec_tone(frecuencia, duracion, amplitud, fs=192000)
 
     #descarto el primer segundo, me quedo con los datos a partir de 1 seg en adelante
     t=1.0   #tiempo que descarto desde t=0
@@ -73,7 +72,7 @@ def secuencia(frecuencia, duracion, amplitud=0.1, fs=192000):
     j=0    # j es un contador de maximos
     i=1    # i recorre todo el array del seno
 
-    while i<len(data)-1 and j<10:
+    while i<len(data)-1 and j<50:
         
         if data[i-1] < data[i] and data[i] > data[i+1]:
             j+=1
@@ -82,17 +81,37 @@ def secuencia(frecuencia, duracion, amplitud=0.1, fs=192000):
     tiempo = tiempo[:i]
     data = data[:i]    
     grabacion = grabacion[:i]
+    
+    #guarda por separada la saldida de cada canal    
+    grabacion1=[]
+    grabacion2=[]
+    i=0
+    
+    for i in range(0,len(grabacion)): 
+        grabacion1.append(grabacion[i][0])
+        grabacion2.append(grabacion[i][1])
 
+        
     #grafico señal de entrada vs señal de salida    
     plt.plot(tiempo,data,'-r', label='$emitted$')
-    plt.plot(tiempo,grabacion,'g^', label='$recorded$')   #aparecen dos label recorded porque son DOS CANALES de grabacion
+    plt.plot(tiempo,grabacion1,'g^', label='$recorded 1$')   #aparecen dos label recorded porque son DOS CANALES de grabacion
+    plt.plot(tiempo,grabacion2,'b^', label='$recorded 2$')   #aparecen dos label recorded porque son DOS CANALES de grabacion
     plt.xlabel('Tiempo(s)')
     plt.ylabel('Amplitud')
     plt.legend(loc='upper right')  
     plt.show()
+   
+
+    #guarda los datos de salida en un archivo de texto 
+    NAMES  = np.array(['tiempo', 'data', 'grabacion1', 'grabacion2'])
+    FLOATS = np.array([ tiempo, data, grabacion1, grabacion2])
+
+    DAT =  np.column_stack((NAMES, FLOATS)).T
+    
+    np.savetxt('opamp_A006_f1000_salida_50picos.txt', DAT, delimiter="\t", fmt='%s')
     
     return tiempo, data, grabacion
-    
+
 
 def medicion_curva():
     """
