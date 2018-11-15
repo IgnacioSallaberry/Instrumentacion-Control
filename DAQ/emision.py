@@ -22,24 +22,24 @@ from nidaqmx.tests.helpers import generate_random_seed
 
 #---------------------------------------------------------------------
 
-do_line = 'Dev4/port0/line0'
+do_line = 'Dev5/port0/line0'
 
 with nidaqmx.Task() as task:
     task.do_channels.add_do_chan(
             do_line, line_grouping=LineGrouping.CHAN_PER_LINE)    #definimos al pin "do_line" como un digital output
-    data = [False,True,False,True]
+    data = [False,True,False,True]*1000
     i=0
     read_data=[]
     while i<len(data):
         if data[i] == True:
             task.write(True)
             read_data.append(task.read())
-            time.sleep(2.5)
+            time.sleep(0.0025)
             
         else:
             task.write(False)            
             read_data.append(task.read())
-            time.sleep(1)
+            time.sleep(0.0075)
         i+=1
     task.write(False)   
 '''
